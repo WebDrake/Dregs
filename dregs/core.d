@@ -25,16 +25,16 @@ class Rating(UserID = size_t, ObjectID = size_t)
 
 class Rating(UserID = size_t, ObjectID = size_t, Reputation = double) : Rating!(UserID, ObjectID)
 {
-	private Reputation reputation_;
+	private Reputation weight_;
 
 	this(UserID u, ObjectID o, Reputation r)
 	{
 		super(u, o);
-		reputation_ = r;
+		weight_ = r;
 	}
 
-	final pure nothrow Reputation reputation()
+	final pure nothrow Reputation weight()
 	{
-		return reputation_;
+		return weight_;
 	}
 }
