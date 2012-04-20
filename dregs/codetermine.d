@@ -1,6 +1,7 @@
 module dregs.codetermine;
 
 import std.math,
+       std.stdio,
        dregs.core;
 
 struct CoDetermination(alias ObjectReputation, alias UserDivergence, alias UserReputation,
@@ -12,32 +13,76 @@ struct CoDetermination(alias ObjectReputation, alias UserDivergence, alias UserR
 	private Rating!(UserID, ObjectID, Reputation)[] ratings_;
 	private Reputation[] reputationUser_;
 	private Reputation[] reputationObject_;
+	private Reputation[] reputationObjectOld_;
 	private size_t[] userLinks_;
 
 	mixin ObjectReputation!(UserID, ObjectID, Reputation); // calculates object reputation based on ratings & user reputation
 	mixin UserDivergence!(UserID, ObjectID, Reputation);   // calculates divergence of user opinions from consensus
 	mixin UserReputation!(UserID, ObjectID, Reputation);   // calculates user reputation based on divergence from consensus
 	
-	this(size_t users, size_t objects,
-	     Rating!(UserID, ObjectID, Reputation)[] ratings, Reputation[] reputationUserInit,
-	     Reputation convergence, Reputation exponent, Reputation minDivergence)
+	this(Reputation convergence, Reputation exponent, Reputation minDivergence)
 	in
 	{
-		assert(users > 0);
-		assert(objects > 0);
-		assert(reputationUserInit.length == users);
 		assert(convergence > 0);
 		assert(minDivergence > 0);
 	}
 	body
 	{
-		reputationUser_.length = users;
-		reputationObject_.length = objects;
-		ratings_[] = ratings[];
-		reputationUser_[] = reputationUserInit[];
 		convergence_ = convergence;
 		exponent_ = exponent;
 		minDivergence_ = minDivergence;
+	}
+
+	size_t reputation(size_t users, size_t objects, Rating!(UserID, ObjectID, Reputation)[] ratings,
+	                  Reputation[] reputationUserInit)
+	in
+	{
+		assert(users > 0);
+		assert(objects > 0);
+		assert(reputationUserInit.length == users);
+	}
+	body
+	{
+		reputationUser_.length = users;
+		reputationObject_.length = objects;
+		reputationObjectOld_.length = objects;
+		ratings_ = ratings;
+		reputationUser_ = reputationUserInit;
+		
+		userReputationInit;
+		objectReputation;
+
+		Reputation diff;
+		size_t iterations = 0;
+
+		do {
+			userDivergence;
+			userReputation;
+
+			reputationObjectOld_[] = reputationObject_[];
+			objectReputation;
+			diff = 0;
+			foreach(size_t o, Reputation rep; reputationObject) {
+				auto aux = rep - reputationObjectOld_[o];
+				diff += aux*aux;
+			}
+			++iterations;
+		} while (diff > convergence_);
+
+		writeln("Exited in ", iterations, " iterations with diff = ", diff);
+
+		return iterations;
+	}
+	     
+
+	final pure nothrow ref Reputation[] reputationUser()
+	{
+		return reputationUser_;
+	}
+
+	final pure nothrow ref Reputation[] reputationObject()
+	{
+		return reputationObject_;
 	}
 }
 
@@ -50,6 +95,7 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 	{
 		weightSum_.length = reputationObject_.length;
 		weightSum_[] = 0;
+		reputationObject_[] = 0;
 
 		foreach(r; ratings_) {
 			reputationObject_[r.object] += reputationUser_[r.user] * r.weight;
