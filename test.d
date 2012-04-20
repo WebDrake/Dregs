@@ -1,4 +1,4 @@
-import std.random, std.stdio;
+import std.math, std.random, std.stdio;
 
 import dregs.core, dregs.codetermine;
 
@@ -42,6 +42,11 @@ void main()
 		iterations = yzlm.reputation(users, objects, ratings, userReputationInit);
 		iterTotal += iterations;
 
-		writeln("[",i,"] Exited in ", iterations, " iterations");
+		double deltaQ = 0;
+		foreach(size_t object, ref const(double) rep; yzlm.reputationObject)
+			deltaQ += (rep - objectQuality[object]) ^^ 2.0;
+		deltaQ = sqrt(deltaQ/objectQuality.length);
+
+		writeln("[",i,"] Exited in ", iterations, " iterations with error = ", deltaQ);
 	}
 }
