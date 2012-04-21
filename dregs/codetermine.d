@@ -20,11 +20,11 @@ struct CoDetermination(alias ObjectReputation, alias UserDivergence, alias UserR
 	mixin UserDivergence!(UserID, ObjectID, Reputation);   // calculates divergence of user opinions from consensus
 	mixin UserReputation!(UserID, ObjectID, Reputation);   // calculates user reputation based on divergence from consensus
 	
-	this(Reputation convergence, Reputation exponent, Reputation minDivergence)
+	this(Reputation convergence, Reputation exponent, Reputation minDivergence = 0.0)
 	in
 	{
 		assert(convergence > 0);
-		assert(minDivergence > 0);
+		assert(minDivergence >= 0);
 	}
 	body
 	{
@@ -139,6 +139,8 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 	in
 	{
 		assert(exponent_ >= 0);
+		assert(minDivergence_ > 0);
+		assert(userLinks_.length == reputationUser_.length);
 	}
 	body
 	{
