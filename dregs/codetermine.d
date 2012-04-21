@@ -59,12 +59,12 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 		return 0;
 	}
 
-	final pure nothrow ref Reputation[] reputationUser()
+	final pure nothrow Reputation[] reputationUser()
 	{
 		return reputationUser_;
 	}
 
-	final pure nothrow ref Reputation[] reputationObject()
+	final pure nothrow Reputation[] reputationObject()
 	{
 		return reputationObject_;
 	}
