@@ -48,7 +48,7 @@ struct CoDetermination(alias ObjectReputation, alias UserDivergence, alias UserR
 		ratings_ = ratings;
 		
 		userReputationInit;
-		objectReputation;
+		objectReputationInit;
 
 		Reputation diff;
 		size_t iterations = 0;
@@ -97,7 +97,6 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 	}
 	body
 	{
-		weightSum_.length = reputationObject_.length;
 		weightSum_[] = 0;
 		reputationObject_[] = 0;
 
@@ -112,6 +111,7 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 
 	final pure nothrow void objectReputationInit()
 	{
+		weightSum_.length = reputationObject_.length;
 		objectReputation;
 	}
 }
