@@ -23,8 +23,8 @@ void main()
 	double[] userError;
 	Mt19937 rng;
 	auto yzlm = YZLM(1e-24, 0.8, 1e-36);
-	auto dkvdLin = DKVDlinear(1e-24, 0.0, 1e-36);
-	auto dkvdExp = DKVDexp(1e-24, 0.8, 1e-36);
+	auto dkvdLin = DKVDlinear(1e-24, 1e-36);
+	auto dkvdExp = DKVDexp(1e-24, 0.8);
 	
 	rng.seed(1001);
 
