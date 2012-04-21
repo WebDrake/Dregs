@@ -22,7 +22,9 @@ void main()
 	double[] objectQuality;
 	double[] userError;
 	Mt19937 rng;
-	auto yzlm = new Yzlm(1e-24, 0.8, 1e-36);
+	auto yzlm = YZLM(1e-24, 0.8, 1e-36);
+	auto dkvdLin = DKVDlinear(1e-24, 0.0, 1e-36);
+	auto dkvdExp = DKVDexp(1e-24, 0.8, 1e-36);
 	
 	rng.seed(1001);
 
@@ -32,6 +34,9 @@ void main()
 	size_t iterTotal = 0;
 
 	ratings.length = userError.length * objectQuality.length;
+
+	alias yzlm algorithm;
+
 	foreach(size_t i; 0..100) {
 		foreach(ref double Q; objectQuality)
 			Q = uniform(0.0, 10.0, rng);
@@ -54,11 +59,11 @@ void main()
 
 		writeln("[", i, "] Generated ", ratings.length, " ratings.");
 
-		size_t iterations = yzlm.reputation(userError.length, objectQuality.length, ratings);
+		size_t iterations = algorithm.reputation(userError.length, objectQuality.length, ratings);
 		iterTotal += iterations;
 
 		double deltaQ = 0;
-		foreach(size_t object, double rep; yzlm.reputationObject)
+		foreach(size_t object, double rep; algorithm.reputationObject)
 			deltaQ += (rep - objectQuality[object]) ^^ 2.0;
 		deltaQ = sqrt(deltaQ/objectQuality.length);
 

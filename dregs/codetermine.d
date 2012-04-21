@@ -165,6 +165,86 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 }
 
 
+mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Reputation = double)
+{
+	private size_t[] userLinks_;
+
+	final pure nothrow void userReputation()
+	in
+	{
+		assert(exponent_ >= 0);
+	}
+	body
+	{
+		foreach(size_t u, ref Reputation rep; reputationUser_) {
+			if(userLinks_[u] > 0)
+				rep = exp( -exponent_ * (rep/userLinks_[u]) );
+			else
+				rep = 0;  // probably unnecessary, but safer.
+		}
+	}
+	
+	final pure nothrow void userReputationInit()
+	{
+		userLinks_.length = reputationUser_.length;
+		userLinks_[] = 0;
+		
+		foreach(r; ratings_)
+			userLinks_[r.user]++;
+
+		reputationUser_[] = 1.0;
+	}
+}
+
+
+mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputation = double)
+{
+	private size_t[] userLinks_;
+
+	final pure nothrow void userReputation()
+	in
+	{
+		assert(exponent_ >= 0);
+	}
+	body
+	{
+		Reputation maxDivergence = 0;
+
+		foreach(size_t u, Reputation rep; reputationUser_) {
+			if(userLinks_[u] > 0) {
+				Reputation aux = rep/userLinks_[u];
+				if(aux > maxDivergence)
+					maxDivergence = aux;
+			}
+		}
+		
+		foreach(size_t u, ref Reputation rep; reputationUser_) {
+			if(userLinks_[u] > 0)
+				rep = 1 - (rep/userLinks_[u]) / (maxDivergence + minDivergence_ + exponent_);
+			else
+				rep = 0;  // probably unnecessary, but safer.
+		}
+	}
+	
+	final pure nothrow void userReputationInit()
+	{
+		userLinks_.length = reputationUser_.length;
+		userLinks_[] = 0;
+		
+		foreach(r; ratings_)
+			userLinks_[r.user]++;
+
+		reputationUser_[] = 1.0;
+	}
+}
+
+
 alias CoDetermination!(ObjectReputationWeightedAverage, UserDivergenceSquare, UserReputationInversePower,
-                       size_t, size_t, double)
-	Yzlm;
+                       size_t, size_t, double) YZLM;
+
+alias CoDetermination!(ObjectReputationWeightedAverage, UserDivergenceSquare, UserReputationExponential,
+                       size_t, size_t, double) DKVDexp;
+
+alias CoDetermination!(ObjectReputationWeightedAverage, UserDivergenceSquare, UserReputationLinear,
+                       size_t, size_t, double) DKVDlinear;
+
