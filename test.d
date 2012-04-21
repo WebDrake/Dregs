@@ -19,19 +19,19 @@ struct RatingIsh
 void main()
 {
 	Rating!(size_t, size_t, double)[] ratings;
-	double[] objectQuality, reputationObject;
-	double[] userError, reputationUser;
+	double[] objectQuality;
+	double[] userError;
 	Mt19937 rng;
 	auto yzlm = new Yzlm(1e-24, 0.8, 1e-36);
 	
 	rng.seed(1001);
 
-	objectQuality.length = reputationObject.length = 1000;
-	userError.length = reputationUser.length = 1000;
+	objectQuality.length = 1000;
+	userError.length = 1000;
 
 	size_t iterTotal = 0;
 
-	ratings.length = reputationObject.length * reputationUser.length;
+	ratings.length = userError.length * objectQuality.length;
 	foreach(size_t i; 0..100) {
 		foreach(ref double Q; objectQuality)
 			Q = uniform(0.0, 10.0, rng);
@@ -52,16 +52,19 @@ void main()
 
 		ratings.length = pos;
 
-		writeln("We now have ", ratings.length, " ratings.");
+		writeln("[", i, "] Generated ", ratings.length, " ratings.");
 
-		size_t iterations = yzlm.reputation(reputationUser, reputationObject, ratings);
+		size_t iterations = yzlm.reputation(userError.length, objectQuality.length, ratings);
 		iterTotal += iterations;
 
 		double deltaQ = 0;
-		foreach(size_t object, double rep; reputationObject)
+		foreach(size_t object, double rep; yzlm.reputationObject)
 			deltaQ += (rep - objectQuality[object]) ^^ 2.0;
 		deltaQ = sqrt(deltaQ/objectQuality.length);
 
-		writeln("[",i,"] Error in quality estimate: ", deltaQ);
+		writeln("Error in quality estimate: ", deltaQ);
+		writeln("--------");
 	}
+
+	writeln("Total iterations: ", iterTotal);
 }
