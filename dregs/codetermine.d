@@ -132,7 +132,7 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 {
 	private Reputation[] weightSum_;
 
-	final pure nothrow void objectReputation()
+	private final pure nothrow void objectReputation()
 	in
 	{
 		assert(weightSum_.length == reputationObject_.length);
@@ -151,7 +151,7 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 			rep /= (weightSum_[o] > 0) ? weightSum_[o] : 1;
 	}
 
-	final pure nothrow void objectReputationInit()
+	private final pure nothrow void objectReputationInit()
 	{
 		weightSum_.length = reputationObject_.length;
 		objectReputation;
@@ -161,7 +161,7 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 
 mixin template UserDivergenceSquare(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
-	final pure nothrow userDivergence()
+	private final pure nothrow userDivergence()
 	{
 		reputationUser_[] = 0;
 
@@ -177,7 +177,7 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 {
 	private size_t[] userLinks_;
 
-	final pure nothrow void userReputation()
+	private final pure nothrow void userReputation()
 	in
 	{
 		assert(exponent_ >= 0);
@@ -194,7 +194,7 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 		}
 	}
 
-	final pure nothrow void userReputationInit()
+	private final pure nothrow void userReputationInit()
 	{
 		userLinks_.length = reputationUser_.length;
 		userLinks_[] = 0;
@@ -211,7 +211,7 @@ mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Rep
 {
 	private size_t[] userLinks_;
 
-	final pure nothrow void userReputation()
+	private final pure nothrow void userReputation()
 	in
 	{
 		assert(exponent_ >= 0);
@@ -226,7 +226,7 @@ mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Rep
 		}
 	}
 
-	final pure nothrow void userReputationInit()
+	private final pure nothrow void userReputationInit()
 	{
 		userLinks_.length = reputationUser_.length;
 		userLinks_[] = 0;
@@ -243,7 +243,7 @@ mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputati
 {
 	private size_t[] userLinks_;
 
-	final pure nothrow void userReputation()
+	private final pure nothrow void userReputation()
 	in
 	{
 		assert(minDivergence_ > 0);
@@ -268,7 +268,7 @@ mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputati
 		}
 	}
 
-	final pure nothrow void userReputationInit()
+	private final pure nothrow void userReputationInit()
 	{
 		userLinks_.length = reputationUser_.length;
 		userLinks_[] = 0;
