@@ -1,14 +1,16 @@
 module dregs.core;
 
-class Rating(UserID = size_t, ObjectID = size_t)
+struct Rating(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
 	private UserID user_;
 	private ObjectID object_;
+	private Reputation weight_;
 
-	this(UserID u, ObjectID o)
+	this(UserID u, ObjectID o, Reputation r)
 	{
 		user_ = u;
 		object_ = o;
+		weight_ = r;
 	}
 
 	final pure nothrow UserID user()
@@ -20,19 +22,7 @@ class Rating(UserID = size_t, ObjectID = size_t)
 	{
 		return object_;
 	}
-}
-
-
-class Rating(UserID = size_t, ObjectID = size_t, Reputation = double) : Rating!(UserID, ObjectID)
-{
-	private Reputation weight_;
-
-	this(UserID u, ObjectID o, Reputation r)
-	{
-		super(u, o);
-		weight_ = r;
-	}
-
+	
 	final pure nothrow Reputation weight()
 	{
 		return weight_;
