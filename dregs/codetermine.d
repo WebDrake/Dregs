@@ -128,9 +128,21 @@ mixin template ThisDKVDlinear(UserID = size_t, ObjectID = size_t, Reputation = d
 }
 
 
+mixin template ObjectReputationInitBasic(UserID = size_t, ObjectID = size_t, Reputation = double)
+{
+	private final pure nothrow void objectReputationInit()
+	{
+		weightSum_.length = reputationObject_.length;
+		objectReputation;
+	}
+}
+
+
 mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
 	private Reputation[] weightSum_;
+
+	mixin ObjectReputationInitBasic!(UserID, ObjectID, Reputation);
 
 	private final pure nothrow void objectReputation()
 	in
@@ -150,12 +162,6 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 		foreach(size_t o, ref Reputation rep; reputationObject_)
 			rep /= (weightSum_[o] > 0) ? weightSum_[o] : 1;
 	}
-
-	private final pure nothrow void objectReputationInit()
-	{
-		weightSum_.length = reputationObject_.length;
-		objectReputation;
-	}
 }
 
 
@@ -173,9 +179,26 @@ mixin template UserDivergenceSquare(UserID = size_t, ObjectID = size_t, Reputati
 }
 
 
+mixin template UserReputationInitBasic(UserID = size_t, ObjectID = size_t, Reputation = double)
+{
+	private final pure nothrow void userReputationInit()
+	{
+		userLinks_.length = reputationUser_.length;
+		userLinks_[] = 0;
+
+		foreach(r; ratings_)
+			userLinks_[r.user]++;
+
+		reputationUser_[] = 1.0;
+	}
+}
+
+
 mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
 	private size_t[] userLinks_;
+
+	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
 	private final pure nothrow void userReputation()
 	in
@@ -193,23 +216,14 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 				rep = 0;  // probably unnecessary, but safer.
 		}
 	}
-
-	private final pure nothrow void userReputationInit()
-	{
-		userLinks_.length = reputationUser_.length;
-		userLinks_[] = 0;
-
-		foreach(r; ratings_)
-			userLinks_[r.user]++;
-
-		reputationUser_[] = 1.0;
-	}
 }
 
 
 mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
 	private size_t[] userLinks_;
+
+	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
 	private final pure nothrow void userReputation()
 	in
@@ -225,23 +239,14 @@ mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Rep
 				rep = 0;  // probably unnecessary, but safer.
 		}
 	}
-
-	private final pure nothrow void userReputationInit()
-	{
-		userLinks_.length = reputationUser_.length;
-		userLinks_[] = 0;
-
-		foreach(r; ratings_)
-			userLinks_[r.user]++;
-
-		reputationUser_[] = 1.0;
-	}
 }
 
 
 mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
 	private size_t[] userLinks_;
+
+	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
 	private final pure nothrow void userReputation()
 	in
@@ -266,17 +271,6 @@ mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputati
 			else
 				rep = 0;  // probably unnecessary, but safer.
 		}
-	}
-
-	private final pure nothrow void userReputationInit()
-	{
-		userLinks_.length = reputationUser_.length;
-		userLinks_[] = 0;
-
-		foreach(r; ratings_)
-			userLinks_[r.user]++;
-
-		reputationUser_[] = 1.0;
 	}
 }
 
