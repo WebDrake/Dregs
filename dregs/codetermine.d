@@ -10,6 +10,7 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 	private immutable Reputation convergence_;
 	private Rating!(UserID, ObjectID, Reputation)[] ratings_;
 	private Reputation[] reputationUser_;
+	private Reputation[] divergenceUser_;
 	private Reputation[] reputationObject_;
 	private Reputation[] reputationObjectOld_;
 	private size_t[] userLinks_;
@@ -29,6 +30,7 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 	body
 	{
 		reputationUser_.length = users;
+		divergenceUser_.length = users;
 		reputationObject_.length = objects;
 		reputationObjectOld_.length = objects;
 		ratings_ = ratings;
@@ -169,11 +171,11 @@ mixin template UserDivergenceSquare(UserID = size_t, ObjectID = size_t, Reputati
 {
 	private final pure nothrow userDivergence()
 	{
-		reputationUser_[] = 0;
+		divergenceUser_[] = 0;
 
 		foreach(r; ratings_) {
 			Reputation aux =  r.weight - reputationObject_[r.object];
-			reputationUser_[r.user] += aux*aux;
+			divergenceUser_[r.user] += aux*aux;
 		}
 	}
 }
@@ -211,7 +213,7 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 	{
 		foreach(size_t u, ref Reputation rep; reputationUser_) {
 			if(userLinks_[u] > 0)
-				rep = ((rep / userLinks_[u]) + minDivergence_) ^^ (-exponent_);
+				rep = ((divergenceUser_[u] / userLinks_[u]) + minDivergence_) ^^ (-exponent_);
 			else
 				rep = 0;  // probably unnecessary, but safer.
 		}
@@ -234,7 +236,7 @@ mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Rep
 	{
 		foreach(size_t u, ref Reputation rep; reputationUser_) {
 			if(userLinks_[u] > 0)
-				rep = exp( -exponent_ * (rep/userLinks_[u]) );
+				rep = exp( -exponent_ * (divergenceUser_[u]/userLinks_[u]) );
 			else
 				rep = 0;  // probably unnecessary, but safer.
 		}
@@ -257,9 +259,9 @@ mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputati
 	{
 		Reputation maxDivergence = 0;
 
-		foreach(size_t u, Reputation rep; reputationUser_) {
+		foreach(size_t u, Reputation d; divergenceUser_) {
 			if(userLinks_[u] > 0) {
-				Reputation aux = rep/userLinks_[u];
+				Reputation aux = d/userLinks_[u];
 				if(aux > maxDivergence)
 					maxDivergence = aux;
 			}
@@ -267,7 +269,7 @@ mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputati
 
 		foreach(size_t u, ref Reputation rep; reputationUser_) {
 			if(userLinks_[u] > 0)
-				rep = 1 - (rep/userLinks_[u]) / (maxDivergence + minDivergence_);
+				rep = 1 - (divergenceUser_[u]/userLinks_[u]) / (maxDivergence + minDivergence_);
 			else
 				rep = 0;  // probably unnecessary, but safer.
 		}
@@ -283,4 +285,3 @@ alias CoDetermination!(ThisDKVDexp, ObjectReputationWeightedAverage, UserDiverge
 
 alias CoDetermination!(ThisDKVDlinear, ObjectReputationWeightedAverage, UserDivergenceSquare, UserReputationLinear,
                        size_t, size_t, double) DKVDlinear;
-
