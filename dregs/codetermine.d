@@ -11,9 +11,9 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 	private Rating!(UserID, ObjectID, Reputation)[] ratings_;
 	private Reputation[] reputationUser_;
 	private Reputation[] divergenceUser_;
+	private size_t[] linksUser_;
 	private Reputation[] reputationObject_;
 	private Reputation[] reputationObjectOld_;
-	private size_t[] userLinks_;
 
 	mixin This!(UserID, ObjectID, Reputation);             // good God, the constructor can be a template mixin!!
 	mixin ObjectReputation!(UserID, ObjectID, Reputation); // calculates object reputation based on ratings & user reputation
@@ -185,11 +185,11 @@ mixin template UserReputationInitBasic(UserID = size_t, ObjectID = size_t, Reput
 {
 	private final pure nothrow void userReputationInit()
 	{
-		userLinks_.length = reputationUser_.length;
-		userLinks_[] = 0;
+		linksUser_.length = reputationUser_.length;
+		linksUser_[] = 0;
 
 		foreach(r; ratings_)
-			userLinks_[r.user]++;
+			linksUser_[r.user]++;
 
 		reputationUser_[] = 1.0;
 	}
@@ -198,7 +198,7 @@ mixin template UserReputationInitBasic(UserID = size_t, ObjectID = size_t, Reput
 
 mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
-	private size_t[] userLinks_;
+	private size_t[] linksUser_;
 
 	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
@@ -207,13 +207,13 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 	{
 		assert(exponent_ >= 0);
 		assert(minDivergence_ > 0);
-		assert(userLinks_.length == reputationUser_.length);
+		assert(linksUser_.length == reputationUser_.length);
 	}
 	body
 	{
 		foreach(size_t u, ref Reputation rep; reputationUser_) {
-			if(userLinks_[u] > 0)
-				rep = ((divergenceUser_[u] / userLinks_[u]) + minDivergence_) ^^ (-exponent_);
+			if(linksUser_[u] > 0)
+				rep = ((divergenceUser_[u] / linksUser_[u]) + minDivergence_) ^^ (-exponent_);
 			else
 				rep = 0;  // probably unnecessary, but safer.
 		}
@@ -223,7 +223,7 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 
 mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
-	private size_t[] userLinks_;
+	private size_t[] linksUser_;
 
 	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
@@ -235,8 +235,8 @@ mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Rep
 	body
 	{
 		foreach(size_t u, ref Reputation rep; reputationUser_) {
-			if(userLinks_[u] > 0)
-				rep = exp( -exponent_ * (divergenceUser_[u]/userLinks_[u]) );
+			if(linksUser_[u] > 0)
+				rep = exp( -exponent_ * (divergenceUser_[u]/linksUser_[u]) );
 			else
 				rep = 0;  // probably unnecessary, but safer.
 		}
@@ -246,7 +246,7 @@ mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Rep
 
 mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
-	private size_t[] userLinks_;
+	private size_t[] linksUser_;
 
 	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
@@ -260,16 +260,16 @@ mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputati
 		Reputation maxDivergence = 0;
 
 		foreach(size_t u, Reputation d; divergenceUser_) {
-			if(userLinks_[u] > 0) {
-				Reputation aux = d/userLinks_[u];
+			if(linksUser_[u] > 0) {
+				Reputation aux = d/linksUser_[u];
 				if(aux > maxDivergence)
 					maxDivergence = aux;
 			}
 		}
 
 		foreach(size_t u, ref Reputation rep; reputationUser_) {
-			if(userLinks_[u] > 0)
-				rep = 1 - (divergenceUser_[u]/userLinks_[u]) / (maxDivergence + minDivergence_);
+			if(linksUser_[u] > 0)
+				rep = 1 - (divergenceUser_[u]/linksUser_[u]) / (maxDivergence + minDivergence_);
 			else
 				rep = 0;  // probably unnecessary, but safer.
 		}
