@@ -25,7 +25,7 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 	mixin UserDivergence!(UserID, ObjectID, Reputation);   // calculates divergence of user opinions from consensus
 	mixin UserReputation!(UserID, ObjectID, Reputation);   // calculates user reputation based on divergence from consensus
 
-	final pure nothrow CoDetResult reputation(size_t users, size_t objects, Rating!(UserID, ObjectID, Reputation)[] ratings)
+	final pure nothrow const(CoDetResult) reputation(size_t users, size_t objects, Rating!(UserID, ObjectID, Reputation)[] ratings)
 	in
 	{
 		assert(users > 0);
