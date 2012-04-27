@@ -1,6 +1,5 @@
-import std.math, std.random, std.stdio;
-
-import dregs.core, dregs.codetermine;
+import std.math, std.random, std.stdio,
+       dregs.core, dregs.codetermine;
 
 struct RatingIsh
 {
@@ -59,8 +58,9 @@ void main()
 
 		writeln("[", i, "] Generated ", ratings.length, " ratings.");
 
-		size_t iterations = algorithm.reputation(userError.length, objectQuality.length, ratings);
-		iterTotal += iterations;
+		CoDetResult result = algorithm.reputation(userError.length, objectQuality.length, ratings);
+		writeln("Exited in ", result.iterations, " iterations with diff = ", result.diff);
+		iterTotal += result.iterations;
 
 		double deltaQ = 0;
 		foreach(size_t object, double rep; algorithm.reputationObject)

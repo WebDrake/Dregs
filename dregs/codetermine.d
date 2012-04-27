@@ -1,8 +1,11 @@
 module dregs.codetermine;
 
-import std.math,
-       std.stdio,
+import std.math, std.stdio, std.typecons,
        dregs.core;
+
+
+alias Tuple!(size_t, "iterations", double, "diff") CoDetResult;
+
 
 struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence, alias UserReputation,
                        UserID = size_t, ObjectID = size_t, Reputation = double)
@@ -20,7 +23,7 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 	mixin UserDivergence!(UserID, ObjectID, Reputation);   // calculates divergence of user opinions from consensus
 	mixin UserReputation!(UserID, ObjectID, Reputation);   // calculates user reputation based on divergence from consensus
 
-	size_t reputation(size_t users, size_t objects, Rating!(UserID, ObjectID, Reputation)[] ratings)
+	final pure nothrow CoDetResult reputation(size_t users, size_t objects, Rating!(UserID, ObjectID, Reputation)[] ratings)
 	in
 	{
 		assert(users > 0);
@@ -55,10 +58,7 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 			++iterations;
 		} while (diff > convergence_);
 
-		writeln("Exited in ", iterations, " iterations with diff = ", diff);
-
-		return iterations;
-		return 0;
+		return CoDetResult(iterations, diff);
 	}
 
 	final pure nothrow Reputation[] reputationUser()
