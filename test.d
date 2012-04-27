@@ -58,12 +58,12 @@ void main()
 
 		writeln("[", i, "] Generated ", ratings.length, " ratings.");
 
-		CoDetResult result = algorithm.reputation(userError.length, objectQuality.length, ratings);
+		auto result = algorithm.reputation(userError.length, objectQuality.length, ratings);
 		writeln("Exited in ", result.iterations, " iterations with diff = ", result.diff);
 		iterTotal += result.iterations;
 
 		double deltaQ = 0;
-		foreach(size_t object, double rep; algorithm.reputationObject)
+		foreach(size_t object, double rep; result.reputationObject)
 			deltaQ += (rep - objectQuality[object]) ^^ 2.0;
 		deltaQ = sqrt(deltaQ/objectQuality.length);
 

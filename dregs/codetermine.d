@@ -4,12 +4,15 @@ import std.math, std.stdio, std.typecons,
        dregs.core;
 
 
-alias Tuple!(size_t, "iterations", double, "diff") CoDetResult;
-
 
 struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence, alias UserReputation,
                        UserID = size_t, ObjectID = size_t, Reputation = double)
 {
+	alias Tuple!(size_t, "iterations",
+	             double, "diff",
+	             Reputation[], "reputationUser",
+	             Reputation[], "reputationObject") CoDetResult;
+
 	private immutable Reputation convergence_;
 	private Reputation[] reputationUser_;
 	private Reputation[] divergenceUser_;
@@ -56,17 +59,7 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 			++iterations;
 		} while (diff > convergence_);
 
-		return CoDetResult(iterations, diff);
-	}
-
-	final pure nothrow Reputation[] reputationUser()
-	{
-		return reputationUser_;
-	}
-
-	final pure nothrow Reputation[] reputationObject()
-	{
-		return reputationObject_;
+		return CoDetResult(iterations, diff, reputationUser_, reputationObject_);
 	}
 }
 
