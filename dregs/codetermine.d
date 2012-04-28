@@ -25,7 +25,7 @@ struct CoDetermination(alias This, alias ObjectReputation, alias UserDivergence,
 	mixin UserDivergence!(UserID, ObjectID, Reputation);   // calculates divergence of user opinions from consensus
 	mixin UserReputation!(UserID, ObjectID, Reputation);   // calculates user reputation based on divergence from consensus
 
-	final pure nothrow const(CoDetResult) reputation(size_t users, size_t objects, Rating!(UserID, ObjectID, Reputation)[] ratings)
+	final pure nothrow const(CoDetResult) reputation(size_t users, size_t objects, const ref Rating!(UserID, ObjectID, Reputation)[] ratings)
 	in
 	{
 		assert(users > 0);
@@ -123,7 +123,7 @@ mixin template ThisDKVDlinear(UserID = size_t, ObjectID = size_t, Reputation = d
 
 mixin template ObjectReputationInitBasic(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
-	private final pure nothrow void objectReputationInit(Rating!(UserID, ObjectID, Reputation)[] ratings)
+	private final pure nothrow void objectReputationInit(const ref Rating!(UserID, ObjectID, Reputation)[] ratings)
 	{
 		weightSum_.length = reputationObject_.length;
 		objectReputation(ratings);
@@ -137,7 +137,7 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 
 	mixin ObjectReputationInitBasic!(UserID, ObjectID, Reputation);
 
-	private final pure nothrow void objectReputation(Rating!(UserID, ObjectID, Reputation)[] ratings)
+	private final pure nothrow void objectReputation(const ref Rating!(UserID, ObjectID, Reputation)[] ratings)
 	in
 	{
 		assert(weightSum_.length == reputationObject_.length);
@@ -160,7 +160,7 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 
 mixin template UserDivergenceSquare(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
-	private final pure nothrow userDivergence(Rating!(UserID, ObjectID, Reputation)[] ratings)
+	private final pure nothrow userDivergence(const ref Rating!(UserID, ObjectID, Reputation)[] ratings)
 	{
 		divergenceUser_[] = 0;
 
@@ -174,7 +174,7 @@ mixin template UserDivergenceSquare(UserID = size_t, ObjectID = size_t, Reputati
 
 mixin template UserReputationInitBasic(UserID = size_t, ObjectID = size_t, Reputation = double)
 {
-	private final pure nothrow void userReputationInit(Rating!(UserID, ObjectID, Reputation)[] ratings)
+	private final pure nothrow void userReputationInit(const ref Rating!(UserID, ObjectID, Reputation)[] ratings)
 	{
 		linksUser_.length = reputationUser_.length;
 		linksUser_[] = 0;
@@ -193,7 +193,7 @@ mixin template UserReputationInversePower(UserID = size_t, ObjectID = size_t, Re
 
 	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
-	private final pure nothrow void userReputation(Rating!(UserID, ObjectID, Reputation)[] ratings)
+	private final pure nothrow void userReputation(const ref Rating!(UserID, ObjectID, Reputation)[] ratings)
 	in
 	{
 		assert(exponent_ >= 0);
@@ -218,7 +218,7 @@ mixin template UserReputationExponential(UserID = size_t, ObjectID = size_t, Rep
 
 	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
-	private final pure nothrow void userReputation(Rating!(UserID, ObjectID, Reputation)[] ratings)
+	private final pure nothrow void userReputation(const ref Rating!(UserID, ObjectID, Reputation)[] ratings)
 	in
 	{
 		assert(exponent_ >= 0);
@@ -241,7 +241,7 @@ mixin template UserReputationLinear(UserID = size_t, ObjectID = size_t, Reputati
 
 	mixin UserReputationInitBasic!(UserID, ObjectID, Reputation);
 
-	private final pure nothrow void userReputation(Rating!(UserID, ObjectID, Reputation)[] ratings)
+	private final pure nothrow void userReputation(const ref Rating!(UserID, ObjectID, Reputation)[] ratings)
 	in
 	{
 		assert(minDivergence_ > 0);
