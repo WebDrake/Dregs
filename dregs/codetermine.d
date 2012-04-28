@@ -148,6 +148,8 @@ mixin template ObjectReputationWeightedAverage(UserID = size_t, ObjectID = size_
 		reputationObject_[] = 0;
 
 		foreach(r; ratings) {
+			assert(r.user < reputationUser_.length);
+			assert(r.object < reputationObject_.length);
 			reputationObject_[r.object] += reputationUser_[r.user] * r.weight;
 			weightSum_[r.object] += reputationUser_[r.user];
 		}
@@ -165,6 +167,8 @@ mixin template UserDivergenceSquare(UserID = size_t, ObjectID = size_t, Reputati
 		divergenceUser_[] = 0;
 
 		foreach(r; ratings) {
+			assert(r.user < reputationUser_.length);
+			assert(r.object < reputationObject_.length);
 			Reputation aux =  r.weight - reputationObject_[r.object];
 			divergenceUser_[r.user] += aux*aux;
 		}
@@ -179,8 +183,10 @@ mixin template UserReputationInitBasic(UserID = size_t, ObjectID = size_t, Reput
 		linksUser_.length = reputationUser_.length;
 		linksUser_[] = 0;
 
-		foreach(r; ratings)
+		foreach(r; ratings) {
+			assert(r.user < reputationUser_.length);
 			linksUser_[r.user]++;
+		}
 
 		reputationUser_[] = 1.0;
 	}
